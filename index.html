@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐟 愚人节快乐！</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        // Tailwind 配置
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        april: '#FF6B35',
+                        prank: '#7B2CBF',
+                        bluescreen: '#000080'
+                    },
+                    fontFamily: {
+                        fun: ['Comic Sans MS', 'cursive', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .text-shadow {
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            }
+            .animate-float {
+                animation: float 3s ease-in-out infinite;
+            }
+            .btn-hover-run {
+                transition: all 0.2s ease;
+            }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-orange-100 to-purple-100 min-h-screen font-fun relative overflow-x-hidden">
+    <!-- 一键清除整蛊按钮 -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="stopAll" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-full shadow-lg transition-all">
+            <i class="fas fa-ban mr-2"></i>停止整蛊
+        </button>
+    </div>
+
+    <!-- 主容器 -->
+    <div class="container mx-auto px-4 py-16 max-w-4xl">
+        <div class="text-center mb-12 animate-float">
+            <h1 class="text-[clamp(2.5rem,5vw,4rem)] font-bold text-april text-shadow mb-4">
+                🎣 愚人节快乐！
+            </h1>
+            <p class="text-gray-700 text-lg md:text-xl">准备好接受小恶作剧了吗？</p>
+        </div>
+
+        <!-- 游戏卡片区 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <!-- 弹窗追击 -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 text-center transition-transform hover:scale-105">
+                <div class="text-4xl text-april mb-4">
+                    <i class="fas fa-bomb"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">弹窗追击</h3>
+                <p class="text-gray-600 mb-5">关不掉的神秘弹窗，试试？</p>
+                <button id="startPopup" class="bg-april hover:bg-orange-600 text-white px-5 py-2 rounded-full transition-all">
+                    启动整蛊
+                </button>
+            </div>
+
+            <!-- 逃跑按钮 -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 text-center transition-transform hover:scale-105">
+                <div class="text-4xl text-prank mb-4">
+                    <i class="fas fa-running"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">逃跑按钮</h3>
+                <p class="text-gray-600 mb-5">你永远也点不到它！</p>
+                <button id="startRunBtn" class="bg-prank hover:bg-purple-700 text-white px-5 py-2 rounded-full transition-all">
+                    启动挑战
+                </button>
+            </div>
+
+            <!-- 假蓝屏 -->
+            <div class="bg-white rounded-2xl shadow-xl p-6 text-center transition-transform hover:scale-105">
+                <div class="text-4xl text-bluescreen mb-4">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-3">假蓝屏警告</h3>
+                <p class="text-gray-600 mb-5">经典系统蓝屏恶作剧</p>
+                <button id="startBlueScreen" class="bg-bluescreen hover:bg-blue-900 text-white px-5 py-2 rounded-full transition-all">
+                    启动蓝屏
+                </button>
+            </div>
+        </div>
+
+        <!-- 逃跑按钮容器 (默认隐藏) -->
+        <div id="runBtnContainer" class="hidden fixed inset-0 z-30 bg-black/50 flex items-center justify-center">
+            <div class="bg-white p-8 rounded-xl relative">
+                <h3 class="text-xl font-bold mb-6 text-center">😈 来点我呀！</h3>
+                <button id="runButton" class="btn-hover-run bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-full">
+                    我不过愚人节
+                </button>
+            </div>
+        </div>
+
+        <!-- 蓝屏整蛊 (默认隐藏) -->
+        <div id="blueScreen" class="hidden fixed inset-0 z-50 bg-bluescreen text-white p-10 font-mono">
+            <div class="max-w-4xl mx-auto mt-20">
+                <h1 class="text-4xl mb-8 bg-white text-bluescreen px-4">:(</h1>
+                <p class="text-2xl mb-6">你的电脑遇到了问题，需要重新启动</p>
+                <p class="text-xl mb-4">我们只收集错误信息，然后为你重新启动</p>
+                <p class="text-xl mb-10">已完成：<span id="progress">0</span>%</p>
+                <p class="text-lg">😜 愚人节快乐！这只是个恶作剧～</p>
+                <button id="closeBlue" class="mt-10 bg-white text-bluescreen px-5 py-2 rounded font-bold">
+                    关闭恶作剧
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isPranking = false;
+        let popupInterval;
+        const stopBtn = document.getElementById('stopAll');
+        
+        // 1. 无限弹窗整蛊
+        const startPopup = document.getElementById('startPopup');
+        startPopup.addEventListener('click', () => {
+            if(isPranking) return;
+            isPranking = true;
+            
+            // 弹窗追击函数
+            function createPopup() {
+                if(!isPranking) return;
+                const x = Math.random() * (window.innerWidth - 200);
+                const y = Math.random() * (window.innerHeight - 150);
+                
+                const popup = document.createElement('div');
+                popup.className = 'fixed bg-white rounded-lg shadow-2xl p-5 z-40 border-4 border-april';
+                popup.style.left = x + 'px';
+                popup.style.top = y + 'px';
+                popup.innerHTML = `
+                    <h3 class="font-bold text-april mb-2">🐟 愚人节快乐！</h3>
+                    <p class="mb-3">你被整蛊啦~</p>
+                    <button class="closePopup bg-gray-200 px-3 py-1 rounded">关闭</button>
+                `;
+                
+                document.body.appendChild(popup);
+                
+                // 关闭当前弹窗，但会继续生成新的
+                popup.querySelector('.closePopup').addEventListener('click', () => {
+                    popup.remove();
+                });
+            }
+            
+            // 每300ms生成一个弹窗
+            popupInterval = setInterval(createPopup, 300);
+            createPopup();
+        });
+        
+        // 2. 逃跑按钮整蛊
+        const runBtnContainer = document.getElementById('runBtnContainer');
+        const runBtn = document.getElementById('runButton');
+        const startRunBtn = document.getElementById('startRunBtn');
+        
+        startRunBtn.addEventListener('click', () => {
+            runBtnContainer.classList.remove('hidden');
+        });
+        
+        // 鼠标靠近就逃跑
+        runBtn.addEventListener('mouseenter', () => {
+            const x = (Math.random() * 80) - 40;
+            const y = (Math.random() * 80) - 40;
+            runBtn.style.transform = `translate(${x}px, ${y}px)`;
+        });
+        
+        runBtnContainer.addEventListener('click', (e) => {
+            if(e.target === runBtnContainer) {
+                runBtnContainer.classList.add('hidden');
+            }
+        });
+        
+        // 3. 假蓝屏整蛊
+        const blueScreen = document.getElementById('blueScreen');
+        const startBlueScreen = document.getElementById('startBlueScreen');
+        const closeBlue = document.getElementById('closeBlue');
+        const progress = document.getElementById('progress');
+        
+        startBlueScreen.addEventListener('click', () => {
+            blueScreen.classList.remove('hidden');
+            let count = 0;
+            const progressInterval = setInterval(() => {
+                count++;
+                progress.textContent = count;
+                if(count >= 100) clearInterval(progressInterval);
+            }, 100);
+        });
+        
+        closeBlue.addEventListener('click', () => {
+            blueScreen.classList.add('hidden');
+        });
+        
+        // 一键停止所有整蛊
+        stopBtn.addEventListener('click', () => {
+            isPranking = false;
+            clearInterval(popupInterval);
+            // 移除所有弹窗
+            document.querySelectorAll('.fixed.bg-white.rounded-lg.shadow-2xl').forEach(pop => pop.remove());
+            runBtnContainer.classList.add('hidden');
+            blueScreen.classList.add('hidden');
+            alert('✅ 所有整蛊已停止！安心使用吧～');
+        });
+    </script>
+</body>
+</html>
